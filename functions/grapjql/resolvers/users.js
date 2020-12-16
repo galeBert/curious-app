@@ -11,7 +11,6 @@ firebase.initializeApp(config)
 module.exports = {
    Mutation : {
     async login(_, { username, password } ){
-
         const { valid, errors } = validateLoginInput(username, password)
             if(!valid) throw new UserInputError("Errors", { errors })
 
@@ -23,7 +22,7 @@ module.exports = {
                                                         errors : {username: 'username tidak ditemukan'}
                                                        })
                                                     } else {
-                                                        return db.data()
+                                                        return doc.data()
                                                     }
                                                 })
             const token = await firebase.auth().signInWithEmailAndPassword(email, password)

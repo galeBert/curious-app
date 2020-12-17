@@ -10,7 +10,6 @@ module.exports = {
                 await db.collection('posts').get()
                     .then(data => {
                         data.forEach(doc => {
-                            console.log(doc.data())
                             posts.push({
                                 id: doc.data().id,
                                 text: doc.data().text,
@@ -30,8 +29,39 @@ module.exports = {
             }
         },
 
-        async getPosts() {
+        async getPost(_, { id }, context) {
+            const { username } = await fbAuthContext(context)
 
+            const postDocument = db.doc(`/posts/${id}`)
+            const commentCollection = db.collection(`/posts/${id}/comments`)
+            
+            if(username) {
+                try {
+                    let post;
+
+                    await postDocument.get()
+                       .then(doc => {
+                              if(!doc.exists){
+                                  throw new UserInputError('Postingan tidak ditemukan')
+                              } else {
+                                  post = doc.data()
+                                  post.comments = []
+
+                                  return commentCollection.orderBy('createdAt', 'asc').get()
+                              }
+                       })
+                      .then(docs => {
+                          docs.forEach(doc => {
+                              post.comments.push( doc.data() )
+                          })
+                      })
+                   return  post
+               }
+               catch (err) {
+                   console.log(err)
+                   throw new Error(err)
+               }
+            }
         }
     },
     Mutation: {
@@ -51,6 +81,7 @@ module.exports = {
                     await db.collection('posts').add(newPost)
                         .then(doc => {
                             newPost.id = doc.id
+                            doc.update({id: doc.id})
                         })
                         console.log("ini newpost", newPost.id);
                     return newPost
@@ -64,7 +95,6 @@ module.exports = {
         },
         async deletePost(_, { id }, context){
             const user = await fbAuthContext(context)
-            console.log(user);
             try{
                 await db.doc(`/posts/${id}`).get()
                         .then(doc => {

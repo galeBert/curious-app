@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Modal, Button, Upload, Form, Input } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { storage } from '../pages/signInWithGoogle';
@@ -10,7 +10,7 @@ import '../App.css'
 const CREATE_POST = gql`
 mutation createPost(
   $text: String!
-  $media: String
+  $media: [String]
   $position: Float!
 ) {
   createPost(
@@ -39,7 +39,14 @@ mutation createPost(
 
 export default function ModalPost() {
 
-  const [createPost, { error, data}] = useMutation(CREATE_POST)
+  const [createPost, { error, data, loading}] = useMutation(
+    CREATE_POST,
+    {
+      onCompleted: () => {
+        setState({ ...state, visible: false, isFinishUpload: false })
+      }
+    }
+  )
 
   const [state, setState] = useState({
     previewVisible: false,
@@ -50,47 +57,71 @@ export default function ModalPost() {
     fileList:[],
     latitude: '',
     longitude: '',
-    uploaded:[]
+    uploaded:[],
+    isFinishUpload: false,
+    text: ''
   })
   
-  const { visible, previewVisible, previewImage, fileList, previewTitle, latitude, longitude, uploaded} = state;
+  const { isFinishUpload, visible, previewVisible, previewImage, fileList, previewTitle, latitude, longitude, uploaded} = state;
 
   ///////// location /////////
- function showPosition(position) {
-  setState({
-    ...state,
-    latitude: position.coords.latitude,
-    longitude: position.coords.longitude
-  })
-}
-navigator.geolocation.getCurrentPosition(showPosition)
+  function showPosition(position) {
+    setState({
+      ...state,
+      latitude: position.coords.latitude,
+      longitude: position.coords.longitude
+    })
+  }
 
-//////////////////// Upload Photo Function Start//////////////////////////////////
+  useEffect(() => {
+    navigator.geolocation.getCurrentPosition(showPosition)
+  }, []);
 
-function getBase64(file) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = () => resolve(reader.result);
-    reader.onerror = error => reject(error);
-  });
-}
+  useEffect(() => {
+    console.log('state upload text: ', state.text && !uploaded.length && isFinishUpload);
+    console.log('state upload image: ', !!uploaded.length, ' ', uploaded);
+    if (!!uploaded.length || (state.text && !uploaded.length && isFinishUpload)) {
+      const { text= '' } = state;
+      const variables = {
+        text,
+        media: uploaded,
+        position: {
+          latitude,
+          longitude
+        }
+      };
 
-const uploadButton = (
-  <div>
-    <PlusOutlined />
-    <div style={{ marginTop: 8 }}>Upload</div>
-  </div>
-);
+      // console.log('payload: ', variables);
+      createPost( { variables });
+    }
+  }, [uploaded, isFinishUpload])
 
-const handleCancel = () => setState({...state, previewVisible: false });
+  //////////////////// Upload Photo Function Start//////////////////////////////////
 
-const handleCancelModal = () => {
-  setState({
-    ...state,
-    visible: false
-  });
-};
+  function getBase64(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = error => reject(error);
+    });
+  }
+
+  const uploadButton = (
+    <div>
+      <PlusOutlined />
+      <div style={{ marginTop: 8 }}>Upload</div>
+    </div>
+  );
+
+  const handleCancel = () => setState({...state, previewVisible: false });
+
+  const handleCancelModal = () => {
+    setState({
+      ...state,
+      visible: false
+    });
+  };
 
   const handlePreview = async file => {
     if (!file.url && !file.preview) {
@@ -108,10 +139,10 @@ const handleCancelModal = () => {
   const handleChange = ({ fileList }) => setState({
     ...state, 
     fileList 
-    });
+  });
 
 
-//////////////////// Upload Photo Function Finish/////////////////////////////////
+  //////////////////// Upload Photo Function Finish/////////////////////////////////
   
 
   const showModal = () => {
@@ -122,38 +153,44 @@ const handleCancelModal = () => {
     });
   };
 
-  const onFinish = (value) => {
-////////////////fungsi upload///////////////////
-fileList.forEach(async (element) => {
-  await storage.ref(`images/${element.originFileObj.name}`).put(element.originFileObj)
-  .on(
-      "state_changed",
-      snapshot => () => {},
-      error => {
-          console.log(error);
-      },
-      () => {
-          storage.ref("images")
-          .child(element.originFileObj.name)
-          .getDownloadURL()
-          .then(url => {
-            console.log(url, typeof(url));
-              setState({
-                ...state,
-                uploaded: state.uploaded.push(url)
-              })
-              console.log("ini di state", uploaded, typeof(uploaded));
-          })
-      }
-  )
-});
-/////update to database//////
-console.log({text: value.text, media: uploaded, position: {latitude : latitude, longitude: longitude}});
-// createPost( { variables: {text: value.text, media: uploaded, position: {latitude : latitude, longitude: longitude } } })
-////////////////fungsi upload///////////////////
+  const onFinish = async (value) => {
+    console.log('file list: ', fileList);
+    let uploaded = [];
+    ////////////////fungsi upload///////////////////
+    if (fileList.length) {
+      uploaded = await Promise.all(fileList.map(async (elem) => {
+        // console.log(elem)
+        const uploadTask = storage.ref(`images/${elem.originFileObj.name}`).put(elem.originFileObj)
+  
+        const url = await new Promise((resolve, reject) => {
+          uploadTask.on('state_changed',
+            () => {},
+            error => reject(error),
+            async () => {
+              const downloadUrl = await uploadTask.snapshot.ref.getDownloadURL();
+  
+              resolve(downloadUrl);
+            }
+          )
+        })
+  
+        return url
+      }));
 
+      console.log('set image')
+      setState({ ...state, uploaded, isFinishUpload: true });
+
+      return;
+    }
+
+    console.log('set text')
+
+    setState({ ...state, uploaded: [], isFinishUpload: true, text: value.text})
+    
+    return;
   };
 
+  console.log('visible: ', visible);
   return (
     <div>
       <div className="ui circular outlined icon button fixed"
@@ -173,40 +210,38 @@ console.log({text: value.text, media: uploaded, position: {latitude : latitude, 
               <a href="/"><p className="location" style={{ marginTop: 10 }} /></a>
             </div>
           ]}
-          onOk={onFinish}
+          // onOk={onFinish}
           onCancel={handleCancelModal}
           footer={null}
         >
         <Form  name="nest-messages" onFinish={onFinish}>
-                      <Form.Item name="text"  >
-                        <Input.TextArea />
-                      </Form.Item>
-                      <Form.Item name="foto" > 
-                      <Upload
-                        action="https://www.mocky.io/v2/5cc8019d300000980a055e76"
-                        listType="picture-card"
-                        fileList={fileList}
-                        onPreview={handlePreview}
-                        onChange={handleChange}
-                      >
-                        {fileList.length >= 5 ? null : uploadButton}
-                      </Upload>
-                      </Form.Item>
-                      <Button htmlType="submit" key="submit" type="primary" 
-                        style={{ backgroundColor: '#7958f5', borderRadius: 20, position:"absolute", left:"86%", bottom:"3%", height:25, fontSize: 10}}  onClick={onFinish}>
-                            Postnya
-                        </Button>
-                      </Form>
-                      <Modal
-                        visible={previewVisible}
-                        title={previewTitle}
-                        footer={null}
-                        onCancel={handleCancel}
-                      >
-                        <img alt="example" style={{ width: '100%' }} src={previewImage} />
-                      </Modal>
-
-                      
+          <Form.Item name="text"  >
+            <Input.TextArea />
+          </Form.Item>
+          <Form.Item name="foto" > 
+          <Upload
+            action="https://www.mocky.io/v2/5cc8019d300000980a055e76"
+            listType="picture-card"
+            fileList={fileList}
+            onPreview={handlePreview}
+            onChange={handleChange}
+          >
+            {fileList.length >= 5 ? null : uploadButton}
+          </Upload>
+          </Form.Item>
+          <Button htmlType="submit" key="submit" type="primary" 
+            style={{ backgroundColor: '#7958f5', borderRadius: 20, position:"absolute", left:"86%", bottom:"3%", height:25, fontSize: 10}}>
+                Postnya
+            </Button>
+          </Form>
+          <Modal
+            visible={previewVisible}
+            title={previewTitle}
+            footer={null}
+            onCancel={handleCancel}
+          >
+            <img alt="example" style={{ width: '100%' }} src={previewImage} />
+          </Modal>
         </Modal>
         
     </div>

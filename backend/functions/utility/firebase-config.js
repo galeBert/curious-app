@@ -1,0 +1,1 @@
+const firebaseConfig = firebase.initializeApp(config)

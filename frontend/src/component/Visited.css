@@ -1,0 +1,11 @@
+.test div.ant-card-body{
+    display:none;
+}
+
+.ant-carousel .slick-prev, .ant-carousel .slick-next{
+    display: block;
+     background: red
+}
+.ant-carousel{
+    width: 300px;
+}

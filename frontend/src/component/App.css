@@ -1,0 +1,224 @@
+a { color: inherit; } 
+
+.landingimage {
+    background-image: url('../images/puzzle.png');
+    height: 818px;
+    width: 100%;
+}
+.terms {
+    font-weight: bold;
+}
+/* LOGIN */
+.gicon {
+    background-image: url('../images/googleicon.png');
+    width: 21px;
+    height: 21px;
+}
+.radius {
+    border-radius: 10px;
+}
+
+.savee {
+    color: black;
+}
+
+/* TIMELINE NEARBY */
+
+.leftside{
+    margin-top: 25px;
+    margin-left: 333px;
+}
+
+.near {
+    enable-background: accumulate;
+}
+.gambar {
+    background-image: url('../images/Avatar.png');
+    width: 60px;
+    height: 60px;
+}
+.profilefoto{
+    height: 60px;
+    width: 60px;
+    background-size: 60px;
+    border-radius: 50%;
+    margin-top: 10px;
+}
+
+.likeButton{
+    background-color: #fff;
+    border: 1px solid black;
+}
+.likeButton:hover{
+    color: red;
+    border: 1px solid black;
+}
+
+.innerlike:hover{
+    background-color: red;
+}
+/* Menu List */
+.markericon {
+    background-image: url('../images/marker50.png');
+    background-size: 32px;
+    width: 30px;
+    background-repeat: no-repeat;
+}
+.near{
+    background-image: url('../images/locicon.png');
+    height: 30px;
+    background-repeat: no-repeat;
+}
+.drop{
+    background-image: url('../images/dropicon.png');
+    height: 30px;
+    background-repeat: no-repeat;
+}
+.star{
+    background-image: url('../images/staricon.png');
+    height: 30px;
+    background-repeat: no-repeat;
+}
+.subscribe{
+    background-image: url('../images/subsicon.png');
+    height: 30px;
+    background-repeat: no-repeat;
+}
+.muted{
+    background-image: url('../images/mutedicon.png');
+    height: 30px;
+    background-repeat: no-repeat;
+}
+.settings{
+    background-image: url('../images/seticon.png');
+    height: 30px;
+    background-repeat: no-repeat;
+}
+.menu {
+    font-weight: bold;
+    color: darkslategrey;
+}
+
+.location {
+    background-image: url('../images/location.png');
+    height: 48px;
+    width: 48px;
+
+}
+
+/* LOGO */
+.curious {
+    background-image: url('../images/logoc1.png');
+    height: 31px;
+    width: 128px;
+    margin-top: 31px;
+}
+
+.curiouslanding {
+    background-image: url('../images/curiouslanding.png');
+    height: 85px;
+    width: 368px;
+    margin-top: -460px;
+    margin-left: 210px;
+    position: absolute;
+}
+/* MIDDLE */
+.middle{
+    margin-top: 25px;
+}
+
+.lpbutton {
+    background-color: white;
+    z-index: 1;
+    text-align: center;
+    position: fixed;
+    top: 0;
+    width: 1127px;
+}
+
+.float {
+    position: relative;
+}
+
+/* SIDE BAR */
+.ant-menu:not(.ant-menu-horizontal) .ant-menu-item-selected, .ant-menu-item-selected a, .ant-menu-item-selected a:hover {
+    background-color:#7f57ff;
+    color: white;
+
+}
+
+
+.ant-menu-item:hover, .ant-menu-item-active:hover, .ant-menu-submenu-title:hover{
+    color: #7f57ff;
+}
+.ant-menu-item-selected:hover a{
+    color: white;
+}
+
+.ant-menu-item:hover a{
+    color: #7f57ff;
+}
+
+.ant-menu-vertical .ant-menu-item::after, .ant-menu-vertical-left .ant-menu-item::after, .ant-menu-vertical-right .ant-menu-item::after, .ant-menu-inline .ant-menu-item::after{
+    border-right: none;
+}
+
+/* VISITED */
+
+.imageone {
+    background-image: url('../images/beachone.jfif');
+    height: 200px;
+    border-radius: 10px;
+}
+
+.imagetwo {
+    background-image: url('../images/beachtwo.jfif');
+    height: 300px;
+    width: 260px;
+    border-radius: 10px;
+    float: right;
+    
+}
+.VisitedClass div.ant-card-body{
+    display:none;
+}
+
+/* MODAL */
+
+.ant-modal-footer button.ant-btn{
+    background-color: red;
+}
+
+.ant-modal-footer button.ant-btn-primary{
+    background-color: blue;
+}
+
+/* NAVBAR */
+
+.centeredButton{
+    position: absolute;
+    top: auto;
+    left: 50%;
+    -ms-transform: translate(-50%, 30%);
+  transform: translate(-50%, 30%);
+}
+.ant-radio-button-wrapper{
+    color: #7f57ff;
+    border: 1px solid #7f57ff;
+}
+.ant-radio-button-wrapper:hover {
+    color: #7f57ff;
+}
+.ant-radio-button-wrapper-checked:hover {
+    color: #7f57ff;
+}
+
+.centeredButton label.ant-radio-button-wrapper-checked{
+    background-color: #7f57ff ;
+    color: white;
+    border: 1px solid #7f57ff;
+}
+
+div.ant-radio-group:hover{
+    color: inherit;
+}

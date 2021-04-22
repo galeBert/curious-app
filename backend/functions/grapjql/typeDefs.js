@@ -7,7 +7,7 @@ module.exports = gql`
         text: String
         media: [PhotoList]
         createdAt: String
-        position: Object
+        position: LatLong
         commentCount: Int
         likeCount: Int
         likes: [Like]
@@ -62,7 +62,7 @@ module.exports = gql`
         getMutedPosts(postId: String!): Post!
     }
 
-        input RegisterInput {
+    input RegisterInput {
         username: String!
         password: String!
         birthday: String
@@ -75,6 +75,12 @@ module.exports = gql`
         latitude: Float
         longtitude: Float
     }
+
+    type LatLong {
+        latitude: Float
+        longtitude: Float
+    }
+
     type Mutation {
         #users mutation
     registerUser(registerInput: RegisterInput ): User!

@@ -16,24 +16,39 @@ mutation createPost(
   createPost(
   text: $text
   media: $media
-  position: {
-    latitude: $latitude 
-    longtitude: $longtitude
-  }
+  position: $position
 ){
   id
   owner
   text
-  media
+  media {
+    url
+  }
   createdAt
-  position
+  position {
+    latitude
+    longtitude
+  }
   commentCount
   likeCount
   likes{
     id
   }
-  comments
-  muted
+  comments {
+    id
+    createdAt
+    owner
+    text
+    displayName
+    photoProfile
+    colorCode
+  }
+  muted {
+    id
+    owner
+    createdAt
+    postId
+  }
 }
 }
 `
@@ -90,7 +105,7 @@ export default function ModalPost() {
         media: uploaded,
         position: {
           latitude,
-          longitude
+          longtitude: longitude
         }
       };
 

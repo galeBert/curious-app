@@ -9,14 +9,17 @@ import '../App.css'
 
 const CREATE_POST = gql`
 mutation createPost(
-  $text: String!
+  $text: String
   $media: [String]
-  $position: Float!
+  $position: Coordinate
 ) {
   createPost(
   text: $text
   media: $media
-  position: $position
+  position: {
+    latitude: $latitude 
+    longtitude: $longtitude
+  }
 ){
   id
   owner
@@ -79,7 +82,7 @@ export default function ModalPost() {
 
   useEffect(() => {
     console.log('state upload text: ', state.text && !uploaded.length && isFinishUpload);
-    console.log('state upload image: ', !!uploaded.length, ' ', uploaded);
+    console.log('state upload image: ', !!uploaded.length, ' ', typeof(uploaded));
     if (!!uploaded.length || (state.text && !uploaded.length && isFinishUpload)) {
       const { text= '' } = state;
       const variables = {
@@ -91,7 +94,7 @@ export default function ModalPost() {
         }
       };
 
-      // console.log('payload: ', variables);
+       console.log('payload: ', variables);
       createPost( { variables });
     }
   }, [uploaded, isFinishUpload])
@@ -143,7 +146,6 @@ export default function ModalPost() {
 
 
   //////////////////// Upload Photo Function Finish/////////////////////////////////
-  
 
   const showModal = () => {
     setState({

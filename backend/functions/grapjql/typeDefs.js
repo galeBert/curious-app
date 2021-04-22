@@ -5,7 +5,7 @@ module.exports = gql`
         id: ID
         owner: String
         text: String
-        media: [String]
+        media: [PhotoList]
         createdAt: String
         position: Object
         commentCount: Int
@@ -14,6 +14,13 @@ module.exports = gql`
         comments: [Comment]
         muted: [Muted]
     }
+    type PhotoList {
+        url: String
+    }
+    input PhotoListInput {
+        url: String
+    }
+
     type Object {
         latitude: Float
         longtitude: Float
@@ -65,8 +72,8 @@ module.exports = gql`
     }
 
     input Coordinate {
-        latitude: Float!
-        longtitude: Float!
+        latitude: Float
+        longtitude: Float
     }
     type Mutation {
         #users mutation
@@ -85,7 +92,7 @@ module.exports = gql`
         token: String!
         ): String!
     
-    createPost(text: String!, media: String, position: Coordinate!): Post!
+    createPost(text: String, media: [String], position: Coordinate): Post!
     deletePost(id: ID!): String!
     likePost(postId: ID!): Post
     mutePost(postId: ID!): String
